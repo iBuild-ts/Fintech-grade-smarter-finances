@@ -1,0 +1,227 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum TransactionDirection {
+  INFLOW
+  OUTFLOW
+}
+
+enum InsightType {
+  BUDGET
+  INVESTING
+  FRAUD
+  GENERAL
+}
+
+enum AlertSeverity {
+  LOW
+  MEDIUM
+  HIGH
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  accounts     ExternalAccount[]
+  plaidItems   PlaidItem[]
+  transactions Transaction[]
+  budgets      Budget[]
+  insights     Insight[]
+  alerts       Alert[]
+  wallets      Wallet[]
+  contractDeployments ContractDeployment[]
+  auditLogs    AuditLog[]
+  riskProfile  RiskProfile?
+
+  @@index([createdAt])
+}
+
+model RiskProfile {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  // 0..1, higher means higher risk tolerance
+  riskTolerance Float
+  horizonYears  Int
+  incomeStable  Boolean
+  hasEmergencyFund Boolean
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String
+  action    String
+  entity    String?
+  entityId  String?
+  meta      Json?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([action, createdAt])
+}
+
+model ContractDeployment {
+  id           String   @id @default(cuid())
+  userId       String
+  chain        String
+  rpcUrl       String?
+  chainId      Int?
+  contractName String
+  address      String
+  deployTxHash String?
+  meta         Json?
+  createdAt    DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([chain, contractName])
+}
+
+model ExternalAccount {
+  id              String   @id @default(cuid())
+  userId          String
+  provider        String
+  providerAccount String
+  name            String?
+  mask            String?
+  type            String?
+  subtype         String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  transactions Transaction[]
+
+  @@unique([provider, providerAccount])
+  @@index([userId])
+}
+
+model PlaidItem {
+  id          String   @id @default(cuid())
+  userId      String
+  itemId      String   @unique
+  accessToken String
+  institution String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Transaction {
+  id           String               @id @default(cuid())
+  userId       String
+  accountId    String?
+  date         DateTime
+  name         String
+  amountCents  Int
+  currency     String               @default("USD")
+  direction    TransactionDirection
+  category     String?
+  merchant     String?
+  isPending    Boolean              @default(false)
+  providerRef  String?
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+
+  user    User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account ExternalAccount? @relation(fields: [accountId], references: [id], onDelete: SetNull)
+
+  @@index([userId, date])
+  @@index([userId, category])
+  @@index([providerRef])
+}
+
+model Budget {
+  id           String   @id @default(cuid())
+  userId       String
+  month        Int
+  year         Int
+  category     String
+  limitCents   Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, year, month, category])
+  @@index([userId, year, month])
+}
+
+model Insight {
+  id        String      @id @default(cuid())
+  userId    String
+  type      InsightType
+  title     String
+  content   String
+  score     Float?
+  meta      Json?
+  isPinned  Boolean     @default(false)
+  acknowledgedAt DateTime?
+  createdAt DateTime    @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([type, createdAt])
+  @@index([userId, isPinned])
+}
+
+model Alert {
+  id         String        @id @default(cuid())
+  userId     String
+  severity   AlertSeverity
+  title      String
+  content    String
+  meta       Json?
+  isRead     Boolean       @default(false)
+  createdAt  DateTime      @default(now())
+  resolvedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([userId, isRead])
+}
+
+model Wallet {
+  id         String   @id @default(cuid())
+  userId     String
+  chain      String
+  address    String
+  createdAt  DateTime @default(now())
+  verifiedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chain, address])
+  @@index([userId])
+}

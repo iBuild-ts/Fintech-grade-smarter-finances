@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: smart-finance-companion-db
+    environment:
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: postgres
+      POSTGRES_DB: smart_finance
+    ports:
+      - "5432:5432"
+    volumes:
+      - smart_finance_pgdata:/var/lib/postgresql/data
+
+volumes:
+  smart_finance_pgdata:
