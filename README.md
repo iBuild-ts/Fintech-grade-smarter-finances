@@ -1,5 +1,22 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Copyright / Trademark
+
+© 2025 Built with ❤️ by Horlah.
+
+Buy me a coffee with ETH:
+
+`0xdf49e29b6840d7ba57e4b5acddc770047f67ff13`
+
+[💰 Send ETH](https://etherscan.io/address/0xdf49e29b6840d7ba57e4b5acddc770047f67ff13)
+
+### Follow & Connect
+
+- Twitter/X: [@lahwealth](https://x.com/lahwealth)
+- Upwork: [Hire me on Upwork](https://www.upwork.com/freelancers/~01857093015b424e00)
+
+*Made with ❤️ by [@lahwealth](https://x.com/lahwealth)*
+
 ## Getting Started
 
 First, run the development server:

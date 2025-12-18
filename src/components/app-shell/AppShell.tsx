@@ -58,6 +58,8 @@ export function AppShell({ children }: PropsWithChildren) {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const ethAddress = "0xdf49e29b6840d7ba57e4b5acddc770047f67ff13";
+  const ethLink = `https://etherscan.io/address/${ethAddress}`;
 
   useEffect(() => {
     if (!session?.user?.email) return;
@@ -264,6 +266,35 @@ export function AppShell({ children }: PropsWithChildren) {
             </div>
 
             <div className="p-6">{children}</div>
+          </div>
+
+          <div className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-white/60 backdrop-blur">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+              <div>© 2025 Built with ❤️ by Horlah.</div>
+
+              <div className="flex flex-col gap-2 md:items-end">
+                <div>
+                  Buy me a coffee with ETH:{" "}
+                  <a className="font-mono text-white/70 hover:text-white" href={ethLink} target="_blank" rel="noreferrer">
+                    {ethAddress}
+                  </a>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-4">
+                  <a className="hover:text-white" href="https://x.com/lahwealth" target="_blank" rel="noreferrer">
+                    Twitter/X: @lahwealth
+                  </a>
+                  <a
+                    className="hover:text-white"
+                    href="https://www.upwork.com/freelancers/~01857093015b424e00"
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Hire me on Upwork
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
